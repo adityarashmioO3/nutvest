@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NutVest: Swim Team Championship Dashboard</title>
+    <style>
+        :root {
+            --bg-color: #0b132b;
+            --card-bg: #1c2541;
+            --text-color: #ffffff;
+            --accent-green: #00b4d8;
+            --accent-gold: #ffb703;
+            --accent-red: #ef476f;
+            --border-radius: 12px;
+        }
+
+        body.gold-skin {
+            --bg-color: #1e1b15;
+            --card-bg: #2d2618;
+            --accent-green: #ffb703;
+            --text-color: #f4f1de;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+            padding: 15px 25px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        h1 { margin: 0; font-size: 24px; color: var(--accent-green); }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+
+        .balance-box {
+            font-size: 36px;
+            font-weight: bold;
+            margin: 15px 0;
+            color: var(--accent-green);
+        }
+
+        .btn {
+            background-color: var(--accent-green);
+            color: #000;
+            border: none;
+            padding: 10px 18px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            transition: transform 0.1s, opacity 0.2s;
+        }
+
+        .btn:hover { opacity: 0.9; }
+        .btn:active { transform: scale(0.97); }
+        .btn-gold { background-color: var(--accent-gold); color: #000; }
+        .btn-red { background-color: var(--accent-red); color: #fff; }
+
+        input, select {
+            background: #0b132b;
+            color: #fff;
+            border: 1px solid #3a506b;
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .shop-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+        }
+
+        .shop-item {
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .ledger-box {
+            background: #000;
+            color: #0f0;
+            font-family: monospace;
+            padding: 15px;
+            height: 200px;
+            overflow-y: auto;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .lock-screen {
+            position: fixed;
+            top:0; left:0; width:100vw; height:100vh;
+            background: #0b132b;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LOCK SCREEN OVERLAY -->
+    <div id="lockScreen" class="lock-screen">
+        <h2>🔒 NutVest Vault Protected</h2>
+        <p id="lockMsg">Set a 4-Digit Passcode to initialize your deck stash:</p>
+        <input type="password" id="pinInput" placeholder="Enter PIN" style="width: 200px; text-align: center; font-size: 20px;">
+        <br>
+        <button class="btn" onclick="handlePinSubmit()">Access Vault</button>
+    </div>
+
+    <!-- MAIN APP INTERFACE -->
+    <header>
+        <div>
+            <h1>🏊‍♂️ NutVest: Swim Team Central</h1>
+            <small>Championship Portfolio Management</small>
+        </div>
+        <div>
+            <button class="btn btn-gold" onclick="cycleMarket()">🕒 Cycle Market (24h)</button>
+            <button class="btn" onclick="saveData()">💾 Save File</button>
+            <button class="btn" onclick="lockVault()">🔒 Lock</button>
+        </div>
+    </header>
+
+    <div class="dashboard-grid">
+        <!-- LEFT PANEL: PERSONAL DASHBOARD & COMBAT -->
+        <div>
+            <div class="card">
+                <h3>🌊 Swimmer Stash Overview</h3>
+                <div class="balance-box"><span id="lblWallet">100</span> 🥜</div>
+                <p>Portfolio Value: <span id="lblPortfolio">0</span> 🥜 | Total Loan Debt: <span id="lblDebt">0</span> 🥜</p>
+                <button class="btn" onclick="claimWage()">💼 Claim Practice Wage (+50 🥜)</button>
+            </div>
+
+            <!-- UNIT WARS & ACORN ARENA -->
+            <div class="card">
+                <h3>🦝 Cyber-Squirrel Unit Wars & 🌰 Acorn Arenas</h3>
+                <p>Fleet Assets: <span id="lblFleetCount">0</span> / 3 Active Units. (Caught Cooldowns: <span id="lblCooldownCount">0</span>)</p>
+                <button class="btn" onclick="deployHeist()">⚔️ Launch Bank Raid Infiltration</button>
+                
+                <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
+                
+                <h4>🌰 Acorn Gladiator Arena</h4>
+                <select id="wagerSize" style="width: auto; display: inline-block;">
+                    <option value="20">20 🥜 (Scout Sparring)</option>
+                    <option value="50">50 🥜 (Gladiator Skirmish)</option>
+                    <option value="100">100 🥜 (Championship Clash)</option>
+                </select>
+                <button class="btn btn-gold" onclick="runAcornDuel()">🛡️ Launch Acorn Challenge</button>
+            </div>
+
+            <!-- THE PRO SHOP -->
+            <div class="card">
+                <h3>🛍️ The Pro Shop GUI</h3>
+                <div class="shop-grid">
+                    <div class="shop-item">
+                        <h4>Cyber-Squirrel</h4>
+                        <p>Max 3. Adds raid power.</p>
+                        <button class="btn btn-gold" onclick="buyShopItem('squirrel', 150)">150 🥜</button>
+                    </div>
+                    <div class="shop-item">
+                        <h4>Double Nutrition</h4>
+                        <p>Upgrades yield to 10%.</p>
+                        <button class="btn btn-gold" onclick="buyShopItem('nutrition', 150)">150 🥜</button>
+                    </div>
+                    <div class="shop-item">
+                        <h4>Golden Armor</h4>
+                        <p>Status dashboard profile skin.</p>
+                        <button class="btn btn-gold" onclick="buyShopItem('goldSkin', 100)">100 🥜</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: COACH CONSOLE & MARKET SYSTEMS -->
+        <div>
+            <!-- COACH CONSOLE -->
+            <div class="card" style="border: 2px solid var(--accent-gold);">
+                <h3>⏱️ Coach Command Desk</h3>
+                <label>Passcode Authorization Action:</label>
+                <input type="text" id="txtAdminMemo" placeholder="Reason (e.g., Perfect flip turns)">
+                <input type="number" id="numAdminAmount" placeholder="Amount of Peanuts">
+                <button class="btn" onclick="coachAdjust(true)"> Grant Rewards (+)</button>
+                <button class="btn btn-red" onclick="coachAdjust(false)"> Deduct Balance (-)</button>
+                
+                <hr style="border-color: rgba(255,255,255,0.1); margin: 15px 0;">
+                <button class="btn btn-gold" style="width: 100%;" onclick="compileNewsletter()">📨 Compile & Open Gmail Newsletter</button>
+            </div>
+
+            <!-- FINANCIAL MARKET -->
+            <div class="card">
+                <h3>📈 24h Supply-Elastic Market</h3>
+                <p>CHIP Stock: <span id="priceCHIP">50</span> 🥜 (Owned: <span id="ownCHIP">0</span>)</p>
+                <button class="btn" onclick="tradeStock('CHIP', 'BUY')">Buy</button>
+                <button class="btn btn-red" onclick="tradeStock('CHIP', 'SELL')">Sell</button>
+
+                <p style="margin-top: 15px;">ELPH Stock: <span id="priceELPH">100</span> 🥜 (Owned: <span id="ownELPH">0</span>)</p>
+                <button class="btn" onclick="tradeStock('ELPH', 'BUY')">Buy</button>
+                <button class="btn btn-red" onclick="tradeStock('ELPH', 'SELL')">Sell</button>
+                
+                <hr style="border-color: rgba(255,255,255,0.1); margin: 15px 0;">
+                <h4>🏦 Loan Window</h4>
+                <button class="btn" onclick="takeLoan()">Borrow 100 🥜 (10% Interest)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LEDGER AUDIT ENGINE -->
+    <div class="card">
+        <h3>🗒️ Pool-Deck Audited System Ledger</h3>
+        <div id="ledger" class="ledger-box"></div>
+    </div>
+
+    <script>
+        let state = {
+            wallet: 100, loan: 0, fleet: 0, cooldowns: 0,
+            hasNutrition: false, stocks: { CHIP: 0, ELPH: 0 },
+            prices: { CHIP: 50, ELPH: 100 }, dumpTracker: { CHIP: 0, ELPH: 0 },
+            pin: ""
+        };
+
+        function log(msg, color="#0f0") {
+            const l = document.getElementById("ledger");
+            l.innerHTML += `<div style="color: ${color}">[${new Date().toLocaleTimeString()}] ${msg}</div>`;
