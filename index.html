@@ -1,252 +1,389 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NutVest: Swim Team Championship Dashboard</title>
+    <title>NutVest Terminal - Peanut Banking & Stock Exchange</title>
     <style>
         :root {
-            --bg-color: #0b132b;
-            --card-bg: #1c2541;
-            --text-color: #ffffff;
-            --accent-green: #00b4d8;
-            --accent-gold: #ffb703;
-            --accent-red: #ef476f;
-            --border-radius: 12px;
+            --bg-color: #1a120b;
+            --card-bg: #2c1e11;
+            --accent-color: #e5ba73;
+            --text-color: #f5edce;
+            --text-dim: #c5ba9c;
+            --success: #82cd47;
+            --danger: #ff5f5f;
         }
 
-        body.gold-skin {
-            --bg-color: #1e1b15;
-            --card-bg: #2d2618;
-            --accent-green: #ffb703;
-            --text-color: #f4f1de;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Courier New', Courier, monospace;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
-            margin: 0;
             padding: 20px;
-            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background-color: var(--card-bg);
+            border: 3px solid var(--accent-color);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
         }
 
         header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: var(--card-bg);
-            padding: 15px 25px;
-            border-radius: var(--border-radius);
+            text-align: center;
+            border-bottom: 2px dashed var(--accent-color);
+            padding-bottom: 15px;
             margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
 
-        h1 { margin: 0; font-size: 24px; color: var(--accent-green); }
+        header h1 {
+            color: var(--accent-color);
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
 
-        .dashboard-grid {
+        .dashboard {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .stat-box h3 {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+        }
+
+        .stat-box p {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent-color);
+        }
+
+        .grid {
             display: grid;
-            grid-template-columns: 2fr 1fr;
+            grid-template-columns: 1fr 1fr;
             gap: 20px;
         }
 
         @media (max-width: 768px) {
-            .dashboard-grid { grid-template-columns: 1fr; }
+            .grid {
+                grid-template-columns: 1fr;
+            }
         }
 
-        .card {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: var(--border-radius);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-            margin-bottom: 20px;
+        .panel {
+            border: 1px solid var(--text-dim);
+            border-radius: 4px;
+            padding: 15px;
+            background: rgba(0,0,0,0.1);
         }
 
-        .balance-box {
-            font-size: 36px;
-            font-weight: bold;
-            margin: 15px 0;
-            color: var(--accent-green);
+        .panel h2 {
+            font-size: 1.2rem;
+            color: var(--accent-color);
+            margin-bottom: 15px;
+            border-bottom: 1px solid rgba(229, 186, 115, 0.3);
+            padding-bottom: 5px;
         }
+
+        .market-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+
+        .market-table th, .market-table td {
+            text-align: left;
+            padding: 8px;
+            font-size: 0.9rem;
+        }
+
+        .market-table th {
+            color: var(--text-dim);
+            border-bottom: 1px solid var(--text-dim);
+        }
+
+        .market-table td {
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .up { color: var(--success); }
+        .down { color: var(--danger); }
 
         .btn {
-            background-color: var(--accent-green);
-            color: #000;
+            background-color: var(--accent-color);
+            color: var(--bg-color);
             border: none;
-            padding: 10px 18px;
-            font-size: 14px;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
-            margin-right: 5px;
-            margin-bottom: 5px;
-            transition: transform 0.1s, opacity 0.2s;
-        }
-
-        .btn:hover { opacity: 0.9; }
-        .btn:active { transform: scale(0.97); }
-        .btn-gold { background-color: var(--accent-gold); color: #000; }
-        .btn-red { background-color: var(--accent-red); color: #fff; }
-
-        input, select {
-            background: #0b132b;
-            color: #fff;
-            border: 1px solid #3a506b;
             padding: 8px 12px;
-            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 3px;
+            font-family: inherit;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 0.8rem;
+        }
+
+        .input-group {
             margin-bottom: 10px;
-            width: 100%;
-            box-sizing: border-box;
+            display: flex;
+            gap: 10px;
         }
 
-        .shop-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 15px;
+        .input-group input, .input-group select {
+            background: var(--bg-color);
+            border: 1px solid var(--text-dim);
+            color: var(--text-color);
+            padding: 6px;
+            font-family: inherit;
+            border-radius: 3px;
+            flex-grow: 1;
         }
 
-        .shop-item {
-            background: rgba(255,255,255,0.05);
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .ledger-box {
+        .log-box {
+            height: 120px;
             background: #000;
-            color: #0f0;
-            font-family: monospace;
-            padding: 15px;
-            height: 200px;
+            border: 1px solid #333;
+            padding: 10px;
             overflow-y: auto;
-            border-radius: 6px;
-            font-size: 13px;
+            font-size: 0.85rem;
+            color: var(--success);
+            border-radius: 3px;
+        }
+
+        .log-entry {
+            margin-bottom: 4px;
         }
     </style>
 </head>
 <body>
 
-    <!-- MAIN APP INTERFACE (Bypassed Lock Screen) -->
+<div class="container">
     <header>
-        <div>
-            <h1>🏊‍♂️ NutVest: Swim Team Central</h1>
-            <small>Championship Portfolio Management</small>
-        </div>
-        <div>
-            <button class="btn btn-gold" onclick="cycleMarket()">🕒 Cycle Market (24h)</button>
-            <button class="btn" onclick="saveData()">💾 Save File</button>
-        </div>
+        <h1>🥜 NUTVEST EXCHANGE & BANKING</h1>
+        <p>Keep your stash safe. Grow your shells.</p>
     </header>
 
-    <div class="dashboard-grid">
-        <!-- LEFT PANEL: PERSONAL DASHBOARD & COMBAT -->
-        <div>
-            <div class="card">
-                <h3>🌊 Swimmer Stash Overview</h3>
-                <div class="balance-box"><span id="lblWallet">100</span> 🥜</div>
-                <p>Portfolio Value: <span id="lblPortfolio">0</span> 🥜 | Total Loan Debt: <span id="lblDebt">0</span> 🥜</p>
-                <button class="btn" onclick="claimWage()">💼 Claim Practice Wage (+50 🥜)</button>
+    <div class="dashboard">
+        <div class="stat-box">
+            <h3>Your Wallet</h3>
+            <p id="wallet-bal">1,000 🥜</p>
+        </div>
+        <div class="stat-box">
+            <h3>Portfolio Value</h3>
+            <p id="portfolio-val">0 🥜</p>
+        </div>
+        <div class="stat-box">
+            <h3>Net Worth</h3>
+            <p id="net-worth">1,000 🥜</p>
+        </div>
+    </div>
+
+    <div class="grid">
+        <!-- Stock Market Panel -->
+        <div class="panel">
+            <h2>📈 Forage Market (Stocks)</h2>
+            <table class="market-table">
+                <thead>
+                    <tr>
+                        <th>Ticker</th>
+                        <th>Price</th>
+                        <th>Change</th>
+                        <th>Owned</th>
+                    </tr>
+                </thead>
+                <tbody id="market-body">
+                    <!-- Dynamic -->
+                </tbody>
+            </table>
+            <button class="btn btn-small" onclick="tickMarket()">⚡ Next Market Cycle</button>
+        </div>
+
+        <!-- Trade & Bank Actions -->
+        <div class="panel">
+            <h2>🔄 Transaction Counter</h2>
+            
+            <div style="margin-bottom: 15px;">
+                <h4 style="font-size:0.85rem; color:var(--text-dim); margin-bottom:5px;">STOCK EXCHANGE</h4>
+                <div class="input-group">
+                    <select id="stock-select"></select>
+                    <input type="number" id="stock-qty" min="1" value="5" placeholder="Qty">
+                </div>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn" style="flex:1;" onclick="tradeStock('BUY')">Buy Shares</button>
+                    <button class="btn" style="flex:1; background:#a37a3e; color:#fff;" onclick="tradeStock('SELL')">Sell Shares</button>
+                </div>
             </div>
 
-            <!-- UNIT WARS & ACORN ARENA -->
-            <div class="card">
-                <h3>🦝 Cyber-Squirrel Unit Wars & 🌰 Acorn Arenas</h3>
-                <p>Fleet Assets: <span id="lblFleetCount">0</span> / 3 Active Units. (Caught Cooldowns: <span id="lblCooldownCount">0</span>)</p>
-                <button class="btn" onclick="deployHeist()">⚔️ Launch Bank Raid Infiltration</button>
-                
-                <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
-                
-                <h4>🌰 Acorn Gladiator Arena</h4>
-                <select id="wagerSize" style="width: auto; display: inline-block;">
-                    <option value="20">20 🥜 (Scout Sparring)</option>
-                    <option value="50">50 🥜 (Gladiator Skirmish)</option>
-                    <option value="100">100 🥜 (Championship Clash)</option>
-                </select>
-                <button class="btn btn-gold" onclick="runAcornDuel()">🛡️ Launch Acorn Challenge</button>
-            </div>
-
-            <!-- THE PRO SHOP -->
-            <div class="card">
-                <h3>🛍️ The Pro Shop GUI</h3>
-                <div class="shop-grid">
-                    <div class="shop-item">
-                        <h4>Cyber-Squirrel</h4>
-                        <p>Max 3. Adds raid power.</p>
-                        <button class="btn btn-gold" onclick="buyShopItem('squirrel', 150)">150 🥜</button>
-                    </div>
-                    <div class="shop-item">
-                        <h4>Double Nutrition</h4>
-                        <p>Upgrades yield to 10%.</p>
-                        <button class="btn btn-gold" onclick="buyShopItem('nutrition', 150)">150 🥜</button>
-                    </div>
-                    <div class="shop-item">
-                        <h4>Golden Armor</h4>
-                        <p>Status dashboard profile skin.</p>
-                        <button class="btn btn-gold" onclick="buyShopItem('goldSkin', 100)">100 🥜</button>
-                    </div>
+            <div>
+                <h4 style="font-size:0.85rem; color:var(--text-dim); margin-bottom:5px;">ATM (FORAGE DEPOSIT)</h4>
+                <div class="input-group">
+                    <input type="number" id="atm-qty" min="1" value="50" placeholder="Peanuts amount">
+                    <button class="btn" onclick="depositAtm()">Deposit</button>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- RIGHT PANEL: COACH CONSOLE & MARKET SYSTEMS -->
-        <div>
-            <!-- COACH CONSOLE -->
-            <div class="card" style="border: 2px solid var(--accent-gold);">
-                <h3>⏱️ Coach Command Desk</h3>
-                <label>Passcode Authorization Action:</label>
-                <input type="text" id="txtAdminMemo" placeholder="Reason (e.g., Perfect flip turns)">
-                <input type="number" id="numAdminAmount" placeholder="Amount of Peanuts">
-                <button class="btn" onclick="coachAdjust(true)"> Grant Rewards (+)</button>
-                <button class="btn btn-red" onclick="coachAdjust(false)"> Deduct Balance (-)</button>
-                
-                <hr style="border-color: rgba(255,255,255,0.1); margin: 15px 0;">
-                <button class="btn btn-gold" style="width: 100%;" onclick="compileNewsletter()">📨 Compile & Open Gmail Newsletter</button>
-            </div>
-
-            <!-- FINANCIAL MARKET -->
-            <div class="card">
-                <h3>📈 24h Supply-Elastic Market</h3>
-                <p>CHIP Stock: <span id="priceCHIP">50</span> 🥜 (Owned: <span id="ownCHIP">0</span>)</p>
-                <button class="btn" onclick="tradeStock('CHIP', 'BUY')">Buy</button>
-                <button class="btn btn-red" onclick="tradeStock('CHIP', 'SELL')">Sell</button>
-
-                <p style="margin-top: 15px;">ELPH Stock: <span id="priceELPH">100</span> 🥜 (Owned: <span id="ownELPH">0</span>)</p>
-                <button class="btn" onclick="tradeStock('ELPH', 'BUY')">Buy</button>
-                <button class="btn btn-red" onclick="tradeStock('ELPH', 'SELL')">Sell</button>
-                
-                <hr style="border-color: rgba(255,255,255,0.1); margin: 15px 0;">
-                <h4>🏦 Loan Window</h4>
-                <button class="btn" onclick="takeLoan()">Borrow 100 🥜 (10% Interest)</button>
-            </div>
+    <!-- Terminal Log -->
+    <div class="panel" style="margin-top: 20px;">
+        <h2>🗒️ System Ledger Log</h2>
+        <div class="log-box" id="log-box">
+            <div class="log-entry">[SYSTEM] Account initialized with 1,000 Base Peanuts.</div>
         </div>
     </div>
+</div>
 
-    <!-- LEDGER AUDIT ENGINE -->
-    <div class="card">
-        <h3>🗒️ Pool-Deck Audited System Ledger</h3>
-        <div id="ledger" class="ledger-box"></div>
-    </div>
+<script>
+    // State management
+    let walletBalance = 1000;
+    
+    const stocks = {
+        'CHIP': { name: 'Skippy Chipmunk Co.', price: 12, change: 0, owned: 0, history: [12] },
+        'JIF': { name: 'Jif Spread Logistics', price: 45, change: 0, owned: 0, history: [45] },
+        'ELPH': { name: 'Elephant Heavy Industries', price: 110, change: 0, owned: 0, history: [110] },
+        'ROST': { name: 'Honey Roasted Tech', price: 25, change: 0, owned: 0, history: [25] }
+    };
 
-    <script>
-        let state = {
-            wallet: 100, loan: 0, fleet: 0, cooldowns: 0,
-            hasNutrition: false, stocks: { CHIP: 0, ELPH: 0 },
-            prices: { CHIP: 50, ELPH: 100 }, dumpTracker: { CHIP: 0, ELPH: 0 }
-        };
+    function logAction(msg) {
+        const logBox = document.getElementById('log-box');
+        const entry = document.createElement('div');
+        entry.className = 'log-entry';
+        entry.innerText = `[LOG] ${msg}`;
+        logBox.appendChild(entry);
+        logBox.scrollTop = logBox.scrollHeight;
+    }
 
-        function log(msg, color="#0f0") {
-            const l = document.getElementById("ledger");
-            l.innerHTML += `<div style="color: ${color}">[${new Date().toLocaleTimeString()}] ${msg}</div>`;
-            l.scrollTop = l.scrollHeight;
+    function updateUI() {
+        // Market table update
+        const tbody = document.getElementById('market-body');
+        const select = document.getElementById('stock-select');
+        const currentSelectVal = select.value;
+        
+        tbody.innerHTML = '';
+        if(!currentSelectVal) select.innerHTML = '';
+
+        let portfolioValue = 0;
+
+        for (const [ticker, stock] of Object.entries(stocks)) {
+            portfolioValue += stock.owned * stock.price;
+
+            // Update Table
+            const changeClass = stock.change >= 0 ? 'up' : 'down';
+            const changeSign = stock.change >= 0 ? '+' : '';
+            const row = `<tr>
+                <td><strong>${ticker}</strong><br><span style="font-size:0.75rem;color:var(--text-dim);">${stock.name}</span></td>
+                <td>${stock.price} 🥜</td>
+                <td class="${changeClass}">${changeSign}${stock.change} 🥜</td>
+                <td>${stock.owned}</td>
+            </tr>`;
+            tbody.innerHTML += row;
+
+            // Populate select list if empty
+            if(!currentSelectVal) {
+                const opt = document.createElement('option');
+                opt.value = ticker;
+                opt.innerText = `${ticker} (${stock.price} PNUT)`;
+                select.appendChild(opt);
+            }
         }
 
-        function updateUI() {
-            document.getElementById("lblWallet").innerText = state.wallet;
-            document.getElementById("lblDebt").innerText = state.loan;
-            document.getElementById("lblFleetCount").innerText = state.fleet;
-            document.getElementById("lblCooldownCount").innerText = state.cooldowns;
-            document.getElementById("ownCHIP").innerText = state.stocks.CHIP;
-            document.getElementById("ownELPH").innerText = state.stocks.ELPH;
-            document.getElementById("priceCHIP").innerText = state.prices.CHIP;
-            document.getElementById("priceELPH").innerText = state.prices.ELPH;
+        if(currentSelectVal) select.value = currentSelectVal;
+
+        // Balance updates
+        document.getElementById('wallet-bal').innerText = `${walletBalance.toLocaleString()} 🥜`;
+        document.getElementById('portfolio-val').innerText = `${portfolioValue.toLocaleString()} 🥜`;
+        document.getElementById('net-worth').innerText = `${(walletBalance + portfolioValue).toLocaleString()} 🥜`;
+    }
+
+    function tickMarket() {
+        for (const [ticker, stock] of Object.entries(stocks)) {
+            // Generate deterministic-feeling pseudo random fluctuations (-20% to +25%)
+            const percentChange = (Math.random() * 0.45) - 0.20;
+            const absoluteChange = Math.round(stock.price * percentChange);
+            stock.change = absoluteChange === 0 ? (Math.random() > 0.5 ? 1 : -1) : absoluteChange;
+            stock.price = Math.max(1, stock.price + stock.change);
+        }
+        
+        // Refresh Select titles
+        const select = document.getElementById('stock-select');
+        const curr = select.value;
+        select.innerHTML = '';
+        for (const [ticker, stock] of Object.entries(stocks)) {
+            const opt = document.createElement('option');
+            opt.value = ticker;
+            opt.innerText = `${ticker} (${stock.price} PNUT)`;
+            select.appendChild(opt);
+        }
+        select.value = curr;
+
+        logAction("Market values cycled. Squirrel volatility updated!");
+        updateUI();
+    }
+
+    function tradeStock(action) {
+        const ticker = document.getElementById('stock-select').value;
+        const qty = parseInt(document.getElementById('stock-qty').value);
+        if(!qty || qty <= 0) return;
+
+        const stock = stocks[ticker];
+        const cost = stock.price * qty;
+
+        if (action === 'BUY') {
+            if (walletBalance < cost) {
+                logAction(`ERROR: Not enough peanuts to purchase ${qty} ${ticker}. Needed: ${cost} 🥜`);
+                return;
+            }
+            walletBalance -= cost;
+            stock.owned += qty;
+            logAction(`Bought ${qty} shares of ${ticker} for ${cost} 🥜`);
+        } else if (action === 'SELL') {
+            if (stock.owned < qty) {
+                logAction(`ERROR: You do not hold ${qty} shares of ${ticker} to liquidate.`);
+                return;
+            }
+            walletBalance += cost;
+            stock.owned -= qty;
+            logAction(`Liquidated ${qty} shares of ${ticker} fetching ${cost} 🥜`);
+        }
+        updateUI();
+    }
+
+    function depositAtm() {
+        const val = parseInt(document.getElementById('atm-qty').value);
+        if(!val || val <= 0) return;
+        walletBalance += val;
+        logAction(`Foraged and deposited +${val} 🥜 into core vault.`);
+        updateUI();
+    }
+
+    // Init
+    updateUI();
+</script>
+</body>
+</html>
